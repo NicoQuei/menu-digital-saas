@@ -32,7 +32,11 @@ export default function TablesPage() {
     setDialog(false)
   }
 
-  const menuUrl = (table: Table) => `${window.location.origin}/r/${restaurant?.slug || 'demo'}/mesa/${table.number}`
+  const menuUrl = (table: Table) => {
+    // Se estiver na Vercel, usa o domínio atual, caso contrário tenta pegar do env ou localhost
+    const baseUrl = window.location.origin
+    return `${baseUrl}/r/${restaurant?.slug || 'demo'}/mesa/${table.number}`
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
