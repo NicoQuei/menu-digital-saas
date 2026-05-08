@@ -157,13 +157,30 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
     return () => { supabase.removeChannel(channel) }
   }, [restaurant, isDemo])
 
+
   const loadRestaurantData = async () => {
     try {
-      const { data: rest } = await supabase
+      let { data: rest, error } = await supabase
         .from('restaurants')
         .select('*')
         .eq('owner_id', user!.id)
-        .single()
+        .maybeSingle()
+      
+      if (!rest && !error) {
+        const { data: newRest, error: createError } = await supabase
+          .from('restaurants')
+          .insert({
+            name: 'Meu Restaurante Digital',
+            slug: `restaurante-${user!.id.slice(0, 5)}`,
+            owner_id: user!.id,
+            is_active: true
+          })
+          .select()
+          .single()
+        
+        if (createError) throw createError
+        rest = newRest
+      }
       
       if (rest) {
         setRestaurant(rest)
